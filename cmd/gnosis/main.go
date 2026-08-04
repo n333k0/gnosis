@@ -231,6 +231,7 @@ func loadConfig(errOut io.Writer) (*config.Config, bool) {
 		fmt.Fprintf(errOut, "config: %v\n", err)
 		return nil, false
 	}
+	applyAvailableProviderDefault(cfg)
 	return cfg, true
 }
 

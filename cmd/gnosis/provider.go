@@ -111,7 +111,9 @@ func runLogin(ctx context.Context, streams stdio) int {
 		return 1
 	}
 	fmt.Fprintln(streams.out, "Login complete. Credentials saved to "+store.Path()+".")
-	fmt.Fprintln(streams.out, "Set `provider: openai` and `openai_auth: subscription` in gnosis.yaml to use them.")
+	fmt.Fprintln(streams.out, "If you have no gnosis.yaml and no ANTHROPIC_API_KEY set, Gnosis will use this")
+	fmt.Fprintln(streams.out, "subscription automatically. To pin it explicitly (or override another config),")
+	fmt.Fprintln(streams.out, "set `provider: openai` and `openai_auth: subscription` in gnosis.yaml.")
 	return 0
 }
 
@@ -221,6 +223,48 @@ func providerCredentialPresent(cfg *config.Config, provider string) bool {
 	default:
 		return false
 	}
+}
+
+// providerAutoDetectOrder is the priority Gnosis checks when no gnosis.yaml
+// exists anywhere and the shipped default (anthropic) has no credentials.
+// anthropic stays first so an ANTHROPIC_API_KEY the user already has takes
+// precedence; the OpenAI subscription is checked before the OpenAI API key
+// since a `gnosis login` session is already paid for.
+var providerAutoDetectOrder = []struct {
+	provider   string
+	openAIAuth string // only meaningful when provider == "openai"
+}{
+	{provider: "anthropic"},
+	{provider: "openai", openAIAuth: config.OpenAIAuthSubscription},
+	{provider: "openai", openAIAuth: config.OpenAIAuthAPIKey},
+	{provider: "openrouter"},
+	{provider: "google"},
+}
+
+// applyAvailableProviderDefault switches an unconfigured Gnosis (no
+// gnosis.yaml anywhere -- cfg.Source() == "embedded") to whichever backend
+// actually has usable credentials, instead of insisting on ANTHROPIC_API_KEY
+// when the user has run `gnosis login` or set a different provider's API key.
+// Any explicit gnosis.yaml always wins: this only replaces the zero-config
+// fallback, never a choice the user actually wrote down.
+func applyAvailableProviderDefault(cfg *config.Config) {
+	if cfg.Source() != "embedded" {
+		return
+	}
+	for _, candidate := range providerAutoDetectOrder {
+		probe := *cfg
+		probe.Provider = candidate.provider
+		probe.OpenAIAuth = candidate.openAIAuth
+		if !providerCredentialPresent(&probe, candidate.provider) {
+			continue
+		}
+		cfg.Provider = candidate.provider
+		cfg.OpenAIAuth = candidate.openAIAuth
+		cfg.Model = config.DefaultModelFor(cfg.Provider, cfg.OpenAIAuth)
+		return
+	}
+	// Nothing usable found; leave the embedded anthropic default in place so
+	// the existing "ANTHROPIC_API_KEY is not set" guidance still applies.
 }
 
 func providerModelChoices(ctx context.Context, cfg *config.Config, provider string, errOut io.Writer) []tui.ModelChoice {

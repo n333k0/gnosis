@@ -187,7 +187,7 @@ func parseConfig(b []byte, source string) (*Config, error) {
 		return nil, err
 	}
 	if c.Model == "" {
-		c.Model = defaultModelFor(c.Provider, c.OpenAIAuth)
+		c.Model = DefaultModelFor(c.Provider, c.OpenAIAuth)
 	}
 	if c.SubagentsConfigured() {
 		if c.Subagents.Provider == "" {
@@ -198,7 +198,7 @@ func parseConfig(b []byte, source string) (*Config, error) {
 				source, "anthropic", "openai", "openrouter", "google", c.Subagents.Provider)
 		}
 		if c.Subagents.Model == "" {
-			c.Subagents.Model = defaultModelFor(c.Subagents.Provider, c.OpenAIAuth)
+			c.Subagents.Model = DefaultModelFor(c.Subagents.Provider, c.OpenAIAuth)
 		}
 	}
 	seenApprovals := make(map[string]struct{}, len(c.ToolApprovals))
@@ -253,9 +253,12 @@ func (c *Config) SubscriptionAuth() bool {
 	return c.Provider == "openai" && c.OpenAIAuth == OpenAIAuthSubscription
 }
 
-// defaultModelFor returns the default model when the config omits an explicit
+// DefaultModelFor returns the default model when the config omits an explicit
 // one, accounting for the openai subscription backend's distinct model ids.
-func defaultModelFor(provider, openAIAuth string) string {
+// Exported so the composition root (cmd/gnosis) can compute a matching model
+// when it overrides Provider/OpenAIAuth after Load, e.g. to auto-select a
+// backend that actually has usable credentials.
+func DefaultModelFor(provider, openAIAuth string) string {
 	switch provider {
 	case "openai":
 		if openAIAuth == OpenAIAuthSubscription {

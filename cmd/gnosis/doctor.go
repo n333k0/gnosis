@@ -54,6 +54,7 @@ func doctorChecks() []doctorCheck {
 			doctorCheck{Status: doctorWarn, Name: "model", Detail: "skipped: config failed to load"},
 		)
 	} else {
+		applyAvailableProviderDefault(cfg)
 		checks = append(checks, doctorCheck{Status: doctorPass, Name: "config", Detail: "loaded " + cfg.Source()})
 		checks = append(checks, doctorProviderCheck(cfg))
 		checks = append(checks, doctorCredentialCheck(cfg))

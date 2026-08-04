@@ -593,3 +593,96 @@ func TestParseHeadlessArgsReadsInjectedPipedInput(t *testing.T) {
 		t.Fatalf("prompt = %q, want piped stdin followed by arguments", prompt)
 	}
 }
+
+func TestApplyAvailableProviderDefault_StaysAnthropicWhenKeySet(t *testing.T) {
+	clearAdditionalProviderCredentials(t)
+	t.Setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+
+	cfg, ok := loadConfig(io.Discard)
+	if !ok {
+		t.Fatal("loadConfig failed")
+	}
+	if cfg.Source() != "embedded" {
+		t.Fatalf("Source() = %q, want embedded (test setup should have no gnosis.yaml)", cfg.Source())
+	}
+	if cfg.Provider != "anthropic" {
+		t.Fatalf("Provider = %q, want anthropic (ANTHROPIC_API_KEY is set, so it should win)", cfg.Provider)
+	}
+}
+
+func TestApplyAvailableProviderDefault_FallsBackToOpenAISubscription(t *testing.T) {
+	clearAdditionalProviderCredentials(t)
+	home := os.Getenv("HOME")
+	store := auth.NewStore(filepath.Join(home, ".gnosis", "auth.json"))
+	if err := store.Set(auth.ProviderOpenAICodex, auth.Credentials{
+		AccessToken: "valid",
+		ExpiresAt:   time.Now().Add(time.Hour),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, ok := loadConfig(io.Discard)
+	if !ok {
+		t.Fatal("loadConfig failed")
+	}
+	if cfg.Provider != "openai" || cfg.OpenAIAuth != config.OpenAIAuthSubscription {
+		t.Fatalf("Provider/OpenAIAuth = %q/%q, want openai/subscription", cfg.Provider, cfg.OpenAIAuth)
+	}
+	if cfg.Model != config.DefaultModelFor("openai", config.OpenAIAuthSubscription) {
+		t.Fatalf("Model = %q, want the subscription backend's default model", cfg.Model)
+	}
+}
+
+func TestApplyAvailableProviderDefault_FallsBackToOpenAIAPIKeyWhenNoSubscription(t *testing.T) {
+	clearAdditionalProviderCredentials(t)
+	t.Setenv("OPENAI_API_KEY", "sk-test")
+
+	cfg, ok := loadConfig(io.Discard)
+	if !ok {
+		t.Fatal("loadConfig failed")
+	}
+	if cfg.Provider != "openai" || cfg.OpenAIAuth != config.OpenAIAuthAPIKey {
+		t.Fatalf("Provider/OpenAIAuth = %q/%q, want openai/api_key", cfg.Provider, cfg.OpenAIAuth)
+	}
+}
+
+func TestApplyAvailableProviderDefault_LeavesAnthropicWhenNothingIsAvailable(t *testing.T) {
+	clearAdditionalProviderCredentials(t)
+
+	cfg, ok := loadConfig(io.Discard)
+	if !ok {
+		t.Fatal("loadConfig failed")
+	}
+	if cfg.Provider != "anthropic" {
+		t.Fatalf("Provider = %q, want anthropic (nothing configured -- existing error guidance should still apply)", cfg.Provider)
+	}
+}
+
+func TestApplyAvailableProviderDefault_NeverOverridesAnExplicitConfigFile(t *testing.T) {
+	clearAdditionalProviderCredentials(t)
+	home := os.Getenv("HOME")
+	if err := os.MkdirAll(filepath.Join(home, ".gnosis"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(home, ".gnosis", "config.yaml"), []byte("provider: anthropic\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	store := auth.NewStore(filepath.Join(home, ".gnosis", "auth.json"))
+	if err := store.Set(auth.ProviderOpenAICodex, auth.Credentials{
+		AccessToken: "valid",
+		ExpiresAt:   time.Now().Add(time.Hour),
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, ok := loadConfig(io.Discard)
+	if !ok {
+		t.Fatal("loadConfig failed")
+	}
+	if cfg.Source() == "embedded" {
+		t.Fatalf("Source() = embedded, want the written ~/.gnosis/config.yaml path")
+	}
+	if cfg.Provider != "anthropic" {
+		t.Fatalf("Provider = %q, want anthropic (an explicit config file must never be overridden, even with a valid subscription available)", cfg.Provider)
+	}
+}

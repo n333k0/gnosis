@@ -86,7 +86,7 @@ type lifecycle struct {
 // terminates the process, so deferred cleanup is never skipped on failures.
 func execute(args []string, streams stdio, life lifecycle) int {
 	if err := life.init(); err != nil {
-		fmt.Fprintf(streams.err, "warning: NEO_LOG: %v\n", err)
+		fmt.Fprintf(streams.err, "warning: GNOSIS_LOG: %v\n", err)
 	}
 	defer func() { _ = life.close() }()
 	return run(args, streams)

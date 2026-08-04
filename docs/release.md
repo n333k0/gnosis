@@ -122,10 +122,10 @@ Confirm the GitHub release exists for the new tag and is not a prerelease.
 Expected assets:
 
 - `checksums.txt`
-- `neo_darwin_amd64.tar.gz`
-- `neo_darwin_arm64.tar.gz`
-- `neo_linux_amd64.tar.gz`
-- `neo_linux_arm64.tar.gz`
+- `gnosis_darwin_amd64.tar.gz`
+- `gnosis_darwin_arm64.tar.gz`
+- `gnosis_linux_amd64.tar.gz`
+- `gnosis_linux_arm64.tar.gz`
 
 Because the installer resolves the latest stable GitHub release, a successful
 latest release with those assets is enough to confirm the download install path.

@@ -10,8 +10,8 @@ import (
 )
 
 func TestInitFromEnv_DisabledByDefault(t *testing.T) {
-	t.Setenv("NEO_LOG", "")
-	t.Setenv("NEO_LOG_VERBOSE", "")
+	t.Setenv("GNOSIS_LOG", "")
+	t.Setenv("GNOSIS_LOG_VERBOSE", "")
 	t.Setenv("OPENAI_API_KEY", "")
 	t.Setenv("ANTHROPIC_API_KEY", "")
 	t.Cleanup(func() { _ = Close() })
@@ -33,8 +33,8 @@ func TestInitFromEnv_DisabledByDefault(t *testing.T) {
 func TestInitFromEnv_WritesDebugLogsToFile(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "gnosis.log")
-	t.Setenv("NEO_LOG", path)
-	t.Setenv("NEO_LOG_VERBOSE", "")
+	t.Setenv("GNOSIS_LOG", path)
+	t.Setenv("GNOSIS_LOG_VERBOSE", "")
 	t.Setenv("OPENAI_API_KEY", "")
 	t.Setenv("ANTHROPIC_API_KEY", "")
 	t.Cleanup(func() { _ = Close() })
@@ -61,8 +61,8 @@ func TestInitFromEnv_WritesDebugLogsToFile(t *testing.T) {
 func TestInitFromEnv_RedactsSecretsAndSensitiveArgs(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "gnosis.log")
-	t.Setenv("NEO_LOG", path)
-	t.Setenv("NEO_LOG_VERBOSE", "1")
+	t.Setenv("GNOSIS_LOG", path)
+	t.Setenv("GNOSIS_LOG_VERBOSE", "1")
 	t.Setenv("OPENAI_API_KEY", "sk-secret-123")
 	t.Setenv("ANTHROPIC_API_KEY", "")
 	t.Cleanup(func() { _ = Close() })
@@ -109,8 +109,8 @@ func TestInitFromEnv_RedactsSupportedProviderSecretsEverywhere(t *testing.T) {
 		{env: "GOOGLE_API_KEY", sentinel: "google-provider-sentinel"},
 	}
 
-	t.Setenv("NEO_LOG", path)
-	t.Setenv("NEO_LOG_VERBOSE", "1")
+	t.Setenv("GNOSIS_LOG", path)
+	t.Setenv("GNOSIS_LOG_VERBOSE", "1")
 	secrets := make([]string, 0, len(providers))
 	for _, provider := range providers {
 		t.Setenv(provider.env, provider.sentinel)
@@ -181,8 +181,8 @@ func TestPayloadValue_VerboseKeepsFullPayload(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "gnosis.log")
 	payload := strings.Repeat("x", 5000)
-	t.Setenv("NEO_LOG", path)
-	t.Setenv("NEO_LOG_VERBOSE", "1")
+	t.Setenv("GNOSIS_LOG", path)
+	t.Setenv("GNOSIS_LOG_VERBOSE", "1")
 	t.Cleanup(func() { _ = Close() })
 
 	if err := InitFromEnv(); err != nil {

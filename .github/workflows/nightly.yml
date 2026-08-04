@@ -91,7 +91,7 @@ jobs:
 
             cp LICENSE README.md "${stage_dir}/"
 
-            archive="neo_${os}_${arch}_${VERSION}.tar.gz"
+            archive="gnosis_${os}_${arch}_${VERSION}.tar.gz"
             tar -C "${stage_dir}" -czf "dist/${archive}" gnosis LICENSE README.md
 
             rm -rf "${stage_dir}"

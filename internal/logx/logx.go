@@ -29,8 +29,8 @@ var (
 )
 
 func InitFromEnv() error {
-	path := strings.TrimSpace(os.Getenv("NEO_LOG"))
-	verboseEnabled := envBool("NEO_LOG_VERBOSE")
+	path := strings.TrimSpace(os.Getenv("GNOSIS_LOG"))
+	verboseEnabled := envBool("GNOSIS_LOG_VERBOSE")
 	secretValues := envSecrets()
 
 	mu.Lock()

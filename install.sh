@@ -146,8 +146,8 @@ verify_checksum() {
 install_from_release() {
   local version="$1" platform="$2" bin_dir="$3"
 
-  # Expected GoReleaser asset name pattern: neo_<os>_<arch>.tar.gz
-  local asset="neo_${platform}.tar.gz"
+  # Expected GoReleaser asset name pattern: gnosis_<os>_<arch>.tar.gz
+  local asset="gnosis_${platform}.tar.gz"
   local url="https://github.com/${REPO}/releases/download/${version}/${asset}"
   local tmp_dir
   tmp_dir=$(mktemp -d)

@@ -1,0 +1,9 @@
+.env
+/bin/
+/dist/
+/.agent/
+/gnosis
+.DS_Store
+/.codex-worktrees/
+/.gnosis/events.jsonl
+/.gnosis/eval-results/

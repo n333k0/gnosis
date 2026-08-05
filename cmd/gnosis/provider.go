@@ -271,8 +271,13 @@ func providerModelChoices(ctx context.Context, cfg *config.Config, provider stri
 	switch provider {
 	case "openai":
 		if cfg.OpenAIAuth == config.OpenAIAuthSubscription {
+			// ChatGPT account sign-in only accepts OpenAI's current Codex model
+			// family -- older ids (gpt-5-codex, gpt-5.4, ...) are rejected with a
+			// 400 even though they still work under OPENAI_API_KEY auth.
 			return []tui.ModelChoice{
-				{ID: "gpt-5-codex", Name: "GPT-5 Codex", Description: "Supported ChatGPT/Codex subscription model"},
+				{ID: "gpt-5.6-sol", Name: "GPT-5.6 Sol", Description: "Detail and polish; recommended default for ChatGPT/Codex sign-in"},
+				{ID: "gpt-5.6-terra", Name: "GPT-5.6 Terra", Description: "Everyday workhorse, balance of speed and quality"},
+				{ID: "gpt-5.6-luna", Name: "GPT-5.6 Luna", Description: "Fastest, clear and repeatable work"},
 			}
 		}
 		return []tui.ModelChoice{

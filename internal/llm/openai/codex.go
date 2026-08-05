@@ -22,9 +22,12 @@ import (
 const codexEndpoint = "https://chatgpt.com/backend-api/codex/responses"
 
 // DefaultCodexModel is the model used for subscription requests when the config
-// omits one. The Codex backend accepts the Codex-tuned model ids; override via
-// the `model:` config key if needed.
-const DefaultCodexModel = "gpt-5-codex"
+// omits one. The ChatGPT/Codex backend only accepts its own supported model
+// family for account sign-in (currently gpt-5.6-sol/terra/luna) -- older
+// Codex-specific ids such as gpt-5-codex or gpt-5.4 are rejected with a 400
+// even though they still work under OPENAI_API_KEY auth. Override via the
+// `model:` config key if OpenAI's supported set changes again.
+const DefaultCodexModel = "gpt-5.6-sol"
 
 // CredentialSource yields a valid subscription access token and its associated
 // ChatGPT account id, refreshing as needed. It is satisfied by

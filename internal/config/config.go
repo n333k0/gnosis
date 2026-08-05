@@ -22,7 +22,7 @@ const (
 
 	defaultModel           = "claude-opus-5"
 	defaultOpenAIModel     = "gpt-5.6-sol"
-	defaultCodexModel      = "gpt-5-codex"
+	defaultCodexModel      = "gpt-5.6-sol"
 	defaultOpenRouterModel = "anthropic/claude-sonnet-5"
 	defaultGoogleModel     = "gemini-3.5-flash"
 	defaultProvider        = "anthropic"

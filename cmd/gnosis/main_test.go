@@ -22,18 +22,26 @@ import (
 	"github.com/n333k0/gnosis/internal/session"
 )
 
-func TestModelChoices_OpenAISubscriptionOnlyListsSupportedCodexModel(t *testing.T) {
+func TestModelChoices_OpenAISubscriptionOnlyListsSupportedCodexModels(t *testing.T) {
 	clearAdditionalProviderCredentials(t)
 	choices := modelChoices(context.Background(), &config.Config{
 		Provider:   "openai",
 		OpenAIAuth: config.OpenAIAuthSubscription,
 	}, "openai", io.Discard)
 
-	if len(choices) != 1 {
-		t.Fatalf("subscription choices = %d, want 1: %#v", len(choices), choices)
+	want := []string{"gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"}
+	if len(choices) != len(want) {
+		t.Fatalf("subscription choices = %d, want %d: %#v", len(choices), len(want), choices)
 	}
-	if choices[0].ID != "gpt-5-codex" {
-		t.Fatalf("subscription model = %q, want gpt-5-codex", choices[0].ID)
+	for i, id := range want {
+		if choices[i].ID != id {
+			t.Fatalf("subscription model[%d] = %q, want %q", i, choices[i].ID, id)
+		}
+	}
+	for _, choice := range choices {
+		if strings.Contains(choice.ID, "codex") || choice.ID == "gpt-5.4" {
+			t.Fatalf("subscription choices must not list retired ChatGPT-sign-in ids, got %q", choice.ID)
+		}
 	}
 }
 

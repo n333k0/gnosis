@@ -14,35 +14,6 @@ type splashBlock struct {
 	version string
 }
 
-var gnosisWizard = []string{
-	`         .`,
-	`        o`,
-	`       O`,
-	`      o`,
-	`      |`,
-	`   .--+--.`,
-	`  /   |   \`,
-	` |    |    |`,
-	`  \   |   /`,
-	`.--'--+--'--.`,
-	`/             \`,
-	`|              |`,
-	`.   |              |`,
-	`o   |   .------.   |`,
-	` O  |  /        \  |`,
-	`o   |  |   ()   |  |`,
-	`.   |   \      /   |`,
-	`    |    '----'    |`,
-	`    |              |`,
-	`     \            /`,
-	`      \    ||    /`,
-	`       \   ||   /`,
-	`        \  ||  /`,
-	`         \_||_/`,
-	`          |  |`,
-	`          '--'`,
-}
-
 var gnosisWordmark = []string{
 	`██████╗ ███╗   ██╗ ██████╗ ███████╗██╗███████╗`,
 	`██╔════╝ ████╗  ██║██╔═══██╗██╔════╝██║██╔════╝`,
@@ -54,14 +25,7 @@ var gnosisWordmark = []string{
 
 func (b splashBlock) render(width int, _ *glamour.TermRenderer) string {
 	width = max(width, 1)
-	lines := make([]string, 0, len(gnosisWizard)+len(gnosisWordmark)+8)
-
-	if fitsWidth(gnosisWizard, width) {
-		for _, line := range gnosisWizard {
-			lines = append(lines, centerSplashLine(styMuted.Render(line), width))
-		}
-		lines = append(lines, "")
-	}
+	lines := make([]string, 0, len(gnosisWordmark)+8)
 
 	wordmark := gnosisWordmark
 	if !fitsWidth(gnosisWordmark, width) {

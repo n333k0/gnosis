@@ -13,7 +13,7 @@ func TestSplashBlock_RendersCenteredWordmarkAndGuidance(t *testing.T) {
 	for _, want := range []string{
 		`██████╗ ███╗   ██╗ ██████╗ ███████╗██╗███████╗`,
 		`╚██████╔╝██║ ╚████║╚██████╔╝███████║██║███████║`,
-		`          '--'`,
+		" ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚═╝╚══════╝",
 		"v0.2.0",
 		"@ add files · / commands",
 		"TIP: Press tab to show the workflow while Gnosis works.",
